@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>سير حركات النظام — محفظة + منصة</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+            line-height: 1.65;
+            color: #1a1a1a;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem 3rem;
+            background: #fafafa;
+        }
+        h1 { font-size: 1.5rem; border-bottom: 2px solid #0f172a; padding-bottom: 0.5rem; }
+        h2 { font-size:1.15rem; margin-top:2rem; color:#0f172a; }
+        h3 { font-size:1rem; margin-top:1.25rem; color:#334155; }
+        p, li { font-size: 0.95rem; }
+        .note {
+            background: #ecfeff;
+            border: 1px solid #06b6d4;
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+        }
+        .flow {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            margin: 1.25rem 0;
+        }
+        .row {
+            display: flex;
+            align-items: stretch;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        .box {
+            background: #fff;
+            border: 2px solid #94a3b8;
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            min-width: 140px;
+            text-align: center;
+            font-size: 0.88rem;
+        }
+        .box.user { border-color: #2563eb; background: #eff6ff; }
+        .box.api { border-color: #7c3aed; background: #f5f3ff; }
+        .box.db { border-color: #0d9488; background: #f0fdfa; }
+        .box.plat { border-color: #c2410c; background: #fff7ed; }
+        .arrow {
+            text-align: center;
+            color: #64748b;
+            font-size: 1.5rem;
+            line-height: 1.2;
+            padding: 0.15rem 0;
+        }
+        .sub { font-size: 0.8rem; color: #64748b; margin-top: 0.35rem; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin: 0.75rem 0; }
+        th, td { border: 1px solid #cbd5e1; padding: 0.45rem 0.6rem; }
+        th { background: #f1f5f9; }
+        .ledger { background: #fefce8; }
+        @media print {
+            body { background: #fff; padding: 1rem; }
+            .note { break-inside: avoid; }
+            .flow, .row { break-inside: avoid; }
+        }
+    </style>
+</head>
+<body>
+    <h1>سير الحركات — مثل تطبيق دفع حقيقي (محاكاة)</h1>
+    <p>هالصفحة توضح <strong>ماذا يرى المستخدم</strong> مقابل <strong>ماذا يسجّل النظام</strong> (دفتر + محافظ + حسابات المنصة الداخلية). للحفظ PDF: <strong>طباعة → حفظ كـ PDF</strong>.</p>
+
+    <h2>١) شحن محفظة المستخدم (كأن المبلغ جاء من بطاقة / مصدر خارجي — في الـ demo بدون تكامل حقيقي)</h2>
+
+    <h3>أ) منظور المستخدم (User flow)</h3>
+    <div class="flow">
+        <div class="row">
+            <div class="box user">المستخدم يفتح “إضافة رصيد”<br><span class="sub">يختار مبلغ ويؤكد</span></div>
+        </div>
+        <div class="arrow">↓</div>
+        <div class="row">
+            <div class="box user">الواجهة ترسل طلب لـ API<br><span class="sub">POST /deposits + مفتاح idempotency</span></div>
+        </div>
+        <div class="arrow">↓</div>
+        <div class="row">
+            <div class="box user">يظهر له: تم الشحن / رصيده زاد</div>
+        </div>
+    </div>
+    <p>المستخدم <strong>لا</strong> يرى كلمة <code>platform account</code> ولا يربطه بحساب تقني—هو فقط: “رصيدي زاد”.</p>
+
+    <h3>ب) ماذا يفعل النظام في نفس اللحظة (System flow)</h3>
+    <div class="flow">
+        <div class="row">
+            <div class="box api">Laravel: استقبال طلب إيداع<br><span class="sub">التحقق + منع تكرار الطلب</span></div>
+        </div>
+        <div class="arrow">↓</div>
+        <div class="row">
+            <div class="box db">إنشاء <strong>دفعة دفتر</strong> (ledger batch)<br><span class="sub">رقم ref + اسم الحركة</span></div>
+        </div>
+        <div class="arrow">↓</div>
+        <div class="row">
+            <div class="box db ledger">سطران في <strong>ledger_lines</strong> (المجموع 0):</div>
+        </div>
+    </div>
+
+    <table class="ledger">
+        <tr><th>المحفظة</th><th>cents (تغيير)</th><th>type</th></tr>
+        <tr><td>محفظة <strong>clearing</strong> (مرتبطة بـ PlatformAccount: key=clearing)</td><td><strong>−٥٠٠٠</strong></td><td>clearing</td></tr>
+        <tr><td>محفظة <strong>المستخدم</strong></td><td><strong>+٥٠٠٠</strong></td><td>deposit</td></tr>
+    </table>
+
+    <div class="note">
+        <strong>ليه سطر الـ clearing؟</strong> داخل <strong>نظام قيود</strong> فقط: عشان ما يبقى سطر “زودنا المستخدم +٥٠٠٠” بلا مقابله في نفس الجدول. المقابل = جيبة داخلية تمثل “وارد من خارج النظام” في المحاسبة—<em>ليس</em> البطاقة نفسها في قاعدة البيانات.
+    </div>
+
+    <h2>٢) دفع: عميل يدفع لتاجر + رسوم منصة</h2>
+
+    <h3>أ) منظور المستخدم + التاجر</h3>
+    <div class="flow">
+        <div class="row">
+            <div class="box user" style="min-width: 160px;">التاجر أنشأ<br><span class="sub">نية دفع (مبلغ + رسم)</span></div>
+            <div class="box user" style="min-width: 160px;">العميل يؤكد<br><span class="sub">يدفع من رصيده</span></div>
+        </div>
+        <div class="arrow">↓</div>
+        <div class="row">
+            <div class="box user">ناجح: رصيد العميل نزل، تاجر/منصة حسب التصميم</div>
+        </div>
+    </div>
+
+    <h3>ب) النظام: قيد دفتر واحد (٣ سطور)</h3>
+    <p>مثال: ١٠٬٠٠٠ سنت دفع، ١٬٠٠٠ سنت رسوم تطبيق، ٩٬٠٠٠ للتاجر.</p>
+    <table class="ledger">
+        <tr><th>المحفظة</th><th>cents</th><th>type</th></tr>
+        <tr><td>عميل</td><td>−١٠٬٠٠٠</td><td>payment_out</td></tr>
+        <tr><td>تاجر</td><td>+٩٬٠٠٠</td><td>payment_in</td></tr>
+        <tr><td>محفظة <strong>fees</strong> (PlatformAccount: fees)</td><td>+١٬٠٠٠</td><td>application_fee</td></tr>
+    </table>
+    <p>هنا <code>platform_accounts</code> يدخل <strong>كطرف “رسوم المنصة”</strong> (محفظة fees). البطاقة ليست هنا—الرصيد كان <strong>داخل المحفظة مسبقاً</strong> (بعد شحن سابق أو إيداع).</p>
+
+    <h2>٣) رسم بسيط: من أين تظهر `payment_intent`؟</h2>
+    <div class="flow">
+        <div class="row">
+            <div class="box db">جدول <strong>payment_intents</strong><br><span class="sub">“وجود طلب/عملية” + حالة + مبالغ + ربط لاحق بـ batch_id</span></div>
+        </div>
+        <div class="arrow">⬍</div>
+        <div class="row">
+            <div class="box db">عند التنفيذ: <strong>ledger</strong> (السطور الفعلية لحركة المال)</div>
+        </div>
+    </div>
+    <p>الـ intent = وثيقة **عملية**؛ الـ ledger = **إثبات الحركة المحاسبية** بعد التأكيد (أو الإيداع).</p>
+
+    <p style="margin-top:2rem; font-size:0.85rem; color:#64748b;">ملف: <code>/flow-user-ar.html</code> — اطبعه PDF من المتصفح (Ctrl+P) بعد تشغيل المشروع أو فتح الملف مباشرة.</p>
+</body>
+</html>
