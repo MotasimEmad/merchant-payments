@@ -18,7 +18,7 @@ const showingNavigationDropdown = ref(false);
             >
                 <!-- Primary Navigation Menu -->
                 <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                    <div class="flex h-16 justify-between">
+                    <div class="flex min-h-16 items-center justify-between py-2 sm:py-0">
                         <div class="flex">
                             <!-- Logo -->
                             <div class="flex shrink-0 items-center">
@@ -29,9 +29,9 @@ const showingNavigationDropdown = ref(false);
                                 </Link>
                             </div>
 
-                            <!-- Navigation Links -->
+                            <!-- Navigation Links (wrap so Shops / My services stay reachable on narrow widths) -->
                             <div
-                                class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex"
+                                class="hidden flex flex-wrap items-center gap-x-4 gap-y-1 sm:-my-px sm:ms-10 sm:flex lg:gap-x-6"
                             >
                                 <NavLink
                                     :href="route('dashboard')"

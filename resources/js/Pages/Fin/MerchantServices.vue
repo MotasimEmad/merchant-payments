@@ -21,6 +21,14 @@ const createForm = useForm({
     currency: 'USD',
 });
 
+const profileForm = useForm({
+    business_name: '',
+});
+
+function submitProfile() {
+    profileForm.post(route('pay.merchant.profile.store'), { preserveScroll: true });
+}
+
 function submitCreate() {
     createForm.post(route('pay.merchant.services.store'), { preserveScroll: true });
 }
@@ -53,11 +61,28 @@ function remove(publicId) {
             <div class="mx-auto max-w-3xl space-y-8 sm:px-6 lg:px-8">
                 <div
                     v-if="!merchant"
-                    class="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900"
+                    class="space-y-6"
                 >
-                    You do not have a merchant profile yet. Register one via the
-                    <code class="rounded bg-amber-100 px-1">POST /api/v1/merchants</code> API, then
-                    return here to add services your customers can see in the shop.
+                    <div class="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+                        Create a merchant profile to list services in your public shop.
+                    </div>
+                    <div class="overflow-hidden rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+                        <h3 class="text-sm font-semibold text-gray-900">Merchant profile</h3>
+                        <p class="mt-1 text-xs text-gray-500">Business name appears on your shop page.</p>
+                        <form class="mt-4 space-y-3" @submit.prevent="submitProfile">
+                            <div>
+                                <InputLabel for="business_name" value="Business name" />
+                                <TextInput
+                                    id="business_name"
+                                    v-model="profileForm.business_name"
+                                    class="mt-1 block w-full"
+                                    required
+                                />
+                                <InputError class="mt-1" :message="profileForm.errors.business_name" />
+                            </div>
+                            <PrimaryButton :disabled="profileForm.processing">Create profile</PrimaryButton>
+                        </form>
+                    </div>
                 </div>
 
                 <template v-else>

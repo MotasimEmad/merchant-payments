@@ -116,47 +116,34 @@ const totalPersonalUsd = computed(() => {
                     >
                         <div class="border-b border-gray-100 px-5 py-4">
                             <h3 class="text-sm font-semibold text-gray-900">
-                                API surface
+                                Pay area (web)
                             </h3>
                             <p class="text-xs text-gray-500">
-                                Token auth (Sanctum) under
-                                <code class="rounded bg-gray-100 px-1 text-xs"
-                                    >/api/v1</code
-                                >
+                                Signed-in flows under
+                                <code class="rounded bg-gray-100 px-1 text-xs">/pay</code>
                             </p>
                         </div>
                         <div class="space-y-3 px-5 py-4 text-sm text-gray-600">
                             <p>
-                                <span class="font-medium text-gray-800"
-                                    >POST</span
-                                >
-                                <code
-                                    class="ml-2 rounded bg-slate-50 px-1.5 py-0.5 text-xs"
-                                    >/api/v1/wallets/&#123;uuid&#125;/deposits</code
-                                >
+                                <Link
+                                    :href="route('pay.deposit.create')"
+                                    class="font-medium text-indigo-600 hover:text-indigo-800"
+                                >Deposit</Link>
+                                · fund your personal wallet
                             </p>
                             <p>
-                                <span class="font-medium text-gray-800"
-                                    >POST</span
-                                >
-                                <code
-                                    class="ml-2 rounded bg-slate-50 px-1.5 py-0.5 text-xs"
-                                    >/api/v1/payment_intents</code
-                                >
-                                →
-                                <code
-                                    class="ml-1 rounded bg-slate-50 px-1.5 py-0.5 text-xs"
-                                    >/confirm</code
-                                >
+                                <Link
+                                    :href="route('pay.shops')"
+                                    class="font-medium text-indigo-600 hover:text-indigo-800"
+                                >Shops</Link>
+                                · browse merchants and pay for services
                             </p>
                             <p>
-                                <span class="font-medium text-gray-800"
-                                    >GET</span
-                                >
-                                <code
-                                    class="ml-2 rounded bg-slate-50 px-1.5 py-0.5 text-xs"
-                                    >/api/v1/ledger</code
-                                >
+                                <Link
+                                    :href="route('pay.merchant.services')"
+                                    class="font-medium text-indigo-600 hover:text-indigo-800"
+                                >My services</Link>
+                                · merchant catalog and checkout
                             </p>
                         </div>
                     </div>

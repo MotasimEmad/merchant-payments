@@ -8,7 +8,7 @@ use App\Services\Ledger\LedgerService;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
 
-class PlatformAccountWebController extends Controller
+class PlatformAccountController extends Controller
 {
     public function __construct(
         private readonly LedgerService $ledger,

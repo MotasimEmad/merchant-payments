@@ -360,9 +360,9 @@ function handleImageError() {
                                         >Horizon</a
                                     >,
                                     <a
-                                        href="https://laravel.com/docs/sanctum"
+                                        href="https://inertiajs.com"
                                         class="rounded-sm underline hover:text-black focus:outline-none focus-visible:ring-1 focus-visible:ring-[#FF2D20] dark:hover:text-white"
-                                        >Sanctum</a
+                                        >Inertia</a
                                     >,
                                     <a
                                         href="https://laravel.com/docs/telescope"

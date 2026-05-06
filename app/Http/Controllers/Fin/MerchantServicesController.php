@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Fin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Merchant;
 use App\Models\MerchantService;
 use App\Models\User;
+use App\Services\Payments\WalletOperationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -14,6 +16,10 @@ use Illuminate\Validation\Rule;
 
 class MerchantServicesController extends Controller
 {
+    public function __construct(
+        private readonly WalletOperationService $wallets,
+    ) {}
+
     public function index(Request $request): InertiaResponse
     {
         $user = $this->user($request);
@@ -39,6 +45,31 @@ class MerchantServicesController extends Controller
             ],
             'services' => $services,
         ]);
+    }
+
+    public function storeProfile(Request $request): RedirectResponse
+    {
+        $user = $this->user($request);
+        if ($user->merchants()->exists()) {
+            return redirect()->route('pay.merchant.services')
+                ->with('flash', 'You already have a merchant profile.');
+        }
+        $data = $request->validate([
+            'business_name' => 'required|string|max:255',
+        ]);
+        $merchant = Merchant::query()->create([
+            'public_id' => (string) Str::uuid(),
+            'user_id' => $user->id,
+            'business_name' => $data['business_name'],
+            'status' => 'active',
+        ]);
+        if ($user->role === 'customer') {
+            $user->update(['role' => 'merchant']);
+        }
+        $this->wallets->getOrCreateWalletForMerchant($merchant, 'USD');
+
+        return redirect()->route('pay.merchant.services')
+            ->with('flash', 'Merchant profile created.');
     }
 
     public function store(Request $request): RedirectResponse

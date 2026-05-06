@@ -13,7 +13,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
 
-class LedgerWebController extends Controller
+class LedgerController extends Controller
 {
     public function index(Request $request): InertiaResponse
     {
